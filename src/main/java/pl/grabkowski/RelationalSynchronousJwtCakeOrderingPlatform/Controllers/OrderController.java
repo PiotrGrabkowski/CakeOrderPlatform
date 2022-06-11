@@ -1,5 +1,7 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Controllers;
 
+import com.sun.mail.iap.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,30 +26,30 @@ public class OrderController {
 
 
     @PostMapping("/order")
-    public void  createOrder(@RequestBody OrderRequest orderRequest, @RequestParam(name = "file")MultipartFile multipartFile) {
+    public ResponseEntity<Order>  createOrder(@RequestBody OrderRequest orderRequest, @RequestParam(name = "file", required = false)MultipartFile multipartFile) {
 
-        orderService.createOrder(orderRequest, multipartFile);
+        return ResponseEntity.ok(orderService.createOrder(orderRequest, multipartFile));
     }
     @GetMapping("/all")
-    public List<Order> getAllOrders(){
-        return this.orderService.getAllOrders();
+    public ResponseEntity<List<Order> >getAllOrders(){
+        return ResponseEntity.ok(orderService.getAllOrders());
 
     }
     @GetMapping("/{id}")
 
-    public Order getOrderById(@PathVariable(name ="id") Long id){
+    public ResponseEntity<Order> getOrderById(@PathVariable(name ="id") Long id){
 
 
 
-        return this.orderService.getOrderById(id);
+        return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
 
 
     @GetMapping("/all/{id}")
-    public List<Order> getOrdersByUsernameId(@PathVariable(name ="id")Long id){
+    public ResponseEntity<List<Order>> getOrdersByUsernameId(@PathVariable(name ="id")Long id){
 
-        return this.orderService.getOrdersByUsernameId(id);
+        return ResponseEntity.ok(orderService.getOrdersByUsernameId(id));
     }
     @DeleteMapping("/{id}")
     public void deleteOrderById(@PathVariable(name ="id")Long id){

@@ -46,7 +46,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void createOrder(OrderRequest orderRequest, MultipartFile multipartFile) {
+    public Order createOrder(OrderRequest orderRequest, MultipartFile multipartFile) {
         boolean authenticated = false;
         User user = null;
         Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
@@ -78,8 +78,8 @@ public class OrderService {
         newOrder.setTypeOfProduct(orderRequest.getTypeOfProduct());
         newOrder.setOrderStatus(OrderStatus.NEW);
 
-        this.orderRepository.save(newOrder);
-        if(authenticated) {
+       Order savedOrder = this.orderRepository.save(newOrder);
+   /*      if(authenticated) {
             String msg = "Użytkownik: " + user.getNickname() +
                     " o numerze telefonu: " +
                     user.getPhoneNumber() +
@@ -89,7 +89,9 @@ public class OrderService {
         else {
 
             this.smsService.send();
-        }
+        }*/
+
+        return savedOrder;
 
 
 
