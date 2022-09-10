@@ -4,9 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.GalleryItem;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.GalleryItemService;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.ImageService;
 
 
@@ -19,17 +17,16 @@ public class ImageController {
 
 
     private final ImageService imageService;
-    private final GalleryItemService galleryItemService;
 
-    public ImageController( ImageService imageService, GalleryItemService galleryItemService) {
+    public ImageController( ImageService imageService) {
 
         this.imageService = imageService;
-        this.galleryItemService = galleryItemService;
+
     }
 
     @PostMapping("/gallery")
-    public ResponseEntity<String> uploadImageToGallery (@RequestParam("image") MultipartFile multipartFile1, @RequestParam("image-thumb") MultipartFile multipartFile2, @RequestParam("description") String description){
-        this.galleryItemService.add(multipartFile1, multipartFile2, description);
+    public ResponseEntity<String> uploadImageToGallery (@RequestParam("image") MultipartFile multipartFile,  @RequestParam("description") String description){
+        this.imageService.add(multipartFile, description);
         return ResponseEntity.status(HttpStatus.OK).body("Poprawnie dodano zdjęcie");
     }
 
@@ -41,8 +38,8 @@ public class ImageController {
     }
 
     @GetMapping ("/gallery/images")
-    public List<GalleryItem> getAllImagesFromGallery(){
+    public List<Image> getAllImagesFromGallery(){
 
-        return this.galleryItemService.getAll();
+        return this.imageService.getAll();
     }
 }

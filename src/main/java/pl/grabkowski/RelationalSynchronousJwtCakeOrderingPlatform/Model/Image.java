@@ -13,14 +13,19 @@ public class Image {
     private String url;
     private String outerServiceId;
 
-    public Image() {
-    }
+    private String description;
 
-    public Image(Long id, String url, String outerServiceId) {
+    public Image(Long id, String url, String outerServiceId, String description) {
         this.id = id;
         this.url = url;
         this.outerServiceId = outerServiceId;
+        this.description = description;
     }
+
+    public Image() {
+    }
+
+
 
     public Long getId() {
         return id;
@@ -44,5 +49,13 @@ public class Image {
 
     public void setOuterServiceId(String outerServiceId) {
         this.outerServiceId = outerServiceId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
