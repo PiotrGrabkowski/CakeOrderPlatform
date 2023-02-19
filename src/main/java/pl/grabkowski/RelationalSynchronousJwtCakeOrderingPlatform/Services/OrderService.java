@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.SMS.SmsService;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.SecurityUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +52,7 @@ public class OrderService {
         boolean authenticated = false;
         User user = null;
         Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
-        if(authentication.isAuthenticated()&& !(authentication ==null)&& !(authentication instanceof AnonymousAuthenticationToken)){
+        if(SecurityUtils.checkIfUserIsSignedIn()){
 
             authenticated = true;
         }
@@ -103,19 +105,37 @@ public class OrderService {
 
     }
     public Order getOrderById(Long id){
-
-
-
        Order order =  this.orderRepository
                 .findById(id)
                .orElseThrow(() -> new IllegalArgumentException("Cannot find order with this id"));
-       SecurityContextHolder.getContext()
-               .getAuthentication().getName();
+       User ordersUser = order.getUser();
+
+        if(!SecurityUtils.checkIfUserIsSignedIn()){
+            throw new AuthorizationException("Access denied");
+
+        }
+       String name = SecurityUtils.getSignedInUsersName();
+       User user = this.userRepository.findByUsername(name).orElseThrow(() ->new UsernameNotFoundException("User not found."));
+       if (!user.getRole().equals("ROLE_ADMIN")&& ordersUser!= null && user.getId().longValue()!=ordersUser.getId().longValue()){
+
+          throw new AuthorizationException("Access denied");
+       }
 
        return order;
 
     }
-    public List<Order> getOrdersByUsernameId(Long id){
+    public List<Order> getOrdersByUserId(Long id){
+
+        if(!SecurityUtils.checkIfUserIsSignedIn()){
+            throw new AuthorizationException("Access denied");
+
+        }
+        String name = SecurityUtils.getSignedInUsersName();
+        User user = this.userRepository.findByUsername(name).orElseThrow(() ->new UsernameNotFoundException("User not found."));
+        if (!user.getRole().equals("ROLE_ADMIN")&& user.getId().longValue()!=id.longValue()){
+
+            throw new AuthorizationException("Access denied");
+        }
 
         return this.orderRepository.findAllByUser(id);
     }
