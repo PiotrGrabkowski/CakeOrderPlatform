@@ -1,13 +1,14 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT;
 
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.UserDto;
+
 
 public class JWTTransferingObject {
 
     private String jwt;
-    private User user;
+    private UserDto user;
 
-    public JWTTransferingObject(String jwt, User user) {
+    public JWTTransferingObject(String jwt, UserDto user) {
         this.jwt = jwt;
         this.user = user;
     }
@@ -23,11 +24,11 @@ public class JWTTransferingObject {
         this.jwt = jwt;
     }
 
-    public User getUser() {
+    public UserDto getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDto user) {
         this.user = user;
     }
 }

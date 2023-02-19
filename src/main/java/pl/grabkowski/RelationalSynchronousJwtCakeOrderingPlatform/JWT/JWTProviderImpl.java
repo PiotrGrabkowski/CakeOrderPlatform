@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.JWTConfigurationProperties;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.LoginRequest;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.UserDto;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.UserRepository;
 
@@ -34,6 +35,7 @@ public class JWTProviderImpl implements JWTProvider{
         User user = userRepository
                 .findByUsername(username)
                 .orElseThrow(()->new UsernameNotFoundException("Nie znaleziono użytkownika o podanym adresie email"));
+        UserDto userDto = new UserDto(user);
 
         Authentication authenticate = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(username, loginRequest.getPassword()));
@@ -49,7 +51,7 @@ public class JWTProviderImpl implements JWTProvider{
                 .setExpiration(new Date(expirationTime))
                 .signWith(Keys.hmacShaKeyFor(jwtConfigurationProperties.getSecretKey().getBytes()))
                 .compact();
-        return  new JWTTransferingObject(jwt,user);
+        return  new JWTTransferingObject(jwt,userDto);
 
     }
 }
