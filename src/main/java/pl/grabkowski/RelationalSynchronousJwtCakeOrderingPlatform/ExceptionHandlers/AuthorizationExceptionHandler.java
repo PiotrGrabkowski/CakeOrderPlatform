@@ -1,0 +1,2 @@
+package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.ExceptionHandlers;public class AuthorizationExceptionHandler {
+}
