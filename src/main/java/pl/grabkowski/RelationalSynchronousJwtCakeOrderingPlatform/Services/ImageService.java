@@ -6,7 +6,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
 import java.util.List;
 
 public interface ImageService {
-    Image add(MultipartFile multipartFile, String destination);
+    Image add(MultipartFile multipartFile, String destination, String description);
     void delete(Image image);
     void deleteAll();
     void update(Image image, MultipartFile multipartFile, String destination);

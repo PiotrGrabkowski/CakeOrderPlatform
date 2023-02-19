@@ -16,18 +16,22 @@ public class ImageServiceImpl implements ImageService{
     private final ImageRepository imageRepository;
     private final ImageHostingService imageHostingService;
 
+
+
     public ImageServiceImpl(ImageRepository imageRepository, ImageHostingService imageHostingService) {
         this.imageRepository = imageRepository;
         this.imageHostingService = imageHostingService;
+
     }
 
 
 
 
     @Override
-    public Image add(MultipartFile multipartFile, String destination) {
+    public Image add(MultipartFile multipartFile, String destination, String description) {
 
         Image image = this.imageHostingService.upload(multipartFile, destination);
+        image.setDescription(description);
         return this.imageRepository.save(image);
 
     }

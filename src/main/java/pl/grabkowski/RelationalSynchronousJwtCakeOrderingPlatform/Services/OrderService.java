@@ -58,7 +58,7 @@ public class OrderService {
         Order newOrder = new Order();
 
         if(multipartFile != null && !multipartFile.isEmpty()) {
-            Image image = imageService.add(multipartFile, imagesDestinationsProvider.getUsersExamplesDestination());
+            Image image = imageService.add(multipartFile, imagesDestinationsProvider.getUsersExamplesDestination(), null);
             newOrder.setImage(image);
         }
 
