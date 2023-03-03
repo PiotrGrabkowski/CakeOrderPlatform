@@ -2,6 +2,7 @@ package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services;
 
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
@@ -37,7 +38,10 @@ public class ImageServiceImpl implements ImageService{
     }
 
     @Override
-    public void delete(Image image) {
+    @Transactional
+    public void delete(long id) {
+
+        Image image = this.imageRepository.findById(id).orElseThrow(()->new RuntimeException("Nie znaleziono zdjęcia o podanym numerze id"));
         this.imageHostingService.delete(image.getOuterServiceId());
         this.imageRepository.deleteById(image.getId());
 

@@ -33,9 +33,9 @@ public class ImageController {
         return ResponseEntity.status(HttpStatus.OK).body("Poprawnie dodano zdjęcie");
     }
 
-    @DeleteMapping("/{public_id}")
-    public ResponseEntity<String> deleteImage(@RequestBody Image image){
-        this.imageService.delete(image);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteImage(@PathVariable(name = "id") long id){
+        this.imageService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).body("Poprawnie usunięto zdjęcie");
 
     }
