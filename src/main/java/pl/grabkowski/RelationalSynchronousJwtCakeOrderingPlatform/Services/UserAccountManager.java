@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.ClientSideConfigurationProperties;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.UriConfig;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.LoginRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.RegisterRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
@@ -27,16 +28,18 @@ public class UserAccountManager {
     private final UserRepository userRepository;
     private final ClientSideConfigurationProperties clientSideConfigurationProperties;
     private final PasswordEncoder passwordEncoder;
+    private final UriConfig uriConfig;
 
 
 
-    public UserAccountManager(JWTProvider jwtProvider, UserTokenRepository userTokenRepository, MailService mailService, UserRepository userRepository, ClientSideConfigurationProperties clientSideConfigurationProperties, PasswordEncoder passwordEncoder) {
+    public UserAccountManager(JWTProvider jwtProvider, UserTokenRepository userTokenRepository, MailService mailService, UserRepository userRepository, ClientSideConfigurationProperties clientSideConfigurationProperties, PasswordEncoder passwordEncoder, UriConfig uriConfig) {
         this.jwtProvider = jwtProvider;
         this.userTokenRepository = userTokenRepository;
         this.mailService = mailService;
         this.userRepository = userRepository;
         this.clientSideConfigurationProperties = clientSideConfigurationProperties;
         this.passwordEncoder = passwordEncoder;
+        this.uriConfig = uriConfig;
     }
 
     public JWTTransferingObject login (LoginRequest loginRequest){
@@ -66,8 +69,9 @@ public class UserAccountManager {
         userRepository.save(user);
 
 
-        String confirmationEndpoint = clientSideConfigurationProperties.getUrl()+ "#/" +clientSideConfigurationProperties.getConfirmationEndpoint() + userToken.getValue();
-        String from = "PINK_SAGITARIUS";
+       // String confirmationEndpoint = clientSideConfigurationProperties.getUrl()+ "#/" +clientSideConfigurationProperties.getConfirmationEndpoint() + userToken.getValue();
+        String confirmationEndpoint = uriConfig.getBaseURL() + "/user/confirm/" + userToken.getValue();
+        String from = "PINKSAGITARIUS@alwaysdata.net";
         String subject = "Prośba o potwierdzenie rejestracji na platformie do zamawiania tortów PINK SAGITARIUS";
         String content = "Klinkij w podany link w celu potiwerdzenia rejestracji:  " + "<a href=\"" +confirmationEndpoint +"\">Kliknij aby potwierdzic</a>";
         mailService.sendMail(user.getUsername(), from, subject, content, true);
@@ -83,9 +87,9 @@ public class UserAccountManager {
     }
 
     public void deleteUserById (Long id){
-        userRepository.findById(id)
-                .orElseThrow(()->new UsernameNotFoundException("Nie znaleziono użytkownika o podanym identyfikatorze."));
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new NoSuchElementInDatabaseException("Nie znaleziono użytkownika o podanym identyfikatorze."));
+        userRepository.delete(user);
 
     }
 

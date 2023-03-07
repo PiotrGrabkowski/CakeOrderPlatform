@@ -68,7 +68,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .antMatchers("/user/*").permitAll()
                 .antMatchers("/orders/order").permitAll()
-                .antMatchers("/image/gallery/images").permitAll();
+                .antMatchers("/image/gallery/images").permitAll()
+                .anyRequest().permitAll(); //to change when everything is done
 
 
     }
