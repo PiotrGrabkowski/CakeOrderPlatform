@@ -7,28 +7,34 @@ import java.util.List;
 public class OrderRequest {
 
     private Long phoneNumber;
+    private String eventDate;
     private String typeOfProduct;
     private String numberOfServings;
     private List<String> listOfTastes;
     private String description;
-    private String exampleLink;
+
+    private JsonMultipartFile jsonMultipartFile;
+
 
 
     public OrderRequest() {
     }
 
     public OrderRequest(Long phoneNumber,
+                        String eventDate,
                         String typeOfProduct,
                         String numberOfServings,
                         List<String> listOfTastes,
                         String description,
-                        String exampleLink) {
+                        JsonMultipartFile jsonMultipartFile) {
         this.phoneNumber = phoneNumber;
+        this.eventDate = eventDate;
         this.typeOfProduct = typeOfProduct;
         this.numberOfServings = numberOfServings;
         this.listOfTastes = listOfTastes;
         this.description = description;
-        this.exampleLink = exampleLink;
+        this.jsonMultipartFile = jsonMultipartFile;
+
     }
 
     public Long getPhoneNumber() {
@@ -71,11 +77,32 @@ public class OrderRequest {
         this.description = description;
     }
 
-    public String getExampleLink() {
-        return exampleLink;
+    public String getEventDate() {
+        return eventDate;
     }
 
-    public void setExampleLink(String exampleLink) {
-        this.exampleLink = exampleLink;
+    public void setEventDate(String eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public JsonMultipartFile getJsonMultipartFile() {
+        return jsonMultipartFile;
+    }
+
+    public void setJsonMultipartFile(JsonMultipartFile jsonMultipartFile) {
+        this.jsonMultipartFile = jsonMultipartFile;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderRequest{" +
+                "phoneNumber=" + phoneNumber +
+                ", eventDate='" + eventDate + '\'' +
+                ", typeOfProduct='" + typeOfProduct + '\'' +
+                ", numberOfServings='" + numberOfServings + '\'' +
+                ", listOfTastes=" + listOfTastes +
+                ", description='" + description + '\'' +
+                ", jsonMultipartFile=" + jsonMultipartFile.toString() +
+                '}';
     }
 }

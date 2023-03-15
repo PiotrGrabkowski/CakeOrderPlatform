@@ -31,6 +31,9 @@ public class UriConfig {
     public static Set<String> getPublicUris(){
         Set<String> set = new HashSet<>();
         set.add("/image/gallery/images");
+        set.add("/orders/order");
+        set.add("/user/login");
+
         return set;
 
     }

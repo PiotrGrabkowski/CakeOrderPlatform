@@ -1,9 +1,11 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.UriConfig;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AccessTimeoutException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTAuthenticationProvider;
 
 import javax.servlet.FilterChain;
@@ -34,7 +36,20 @@ public class JWTFilter extends OncePerRequestFilter {
             String jwt = header.substring(7);
             if(!setOfPublicUris.contains(requestUri))
 
-            jwtAuthenticationProvider.provideAuthentication(jwt);
+                try {
+                    jwtAuthenticationProvider.provideAuthentication(jwt);
+                } catch (AccessTimeoutException e) {
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().print(e.getMessage());
+                    return;
+                }
+                catch (JwtException e) {
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().print(e.getMessage());
+                    return;
+                }
 
 
         }

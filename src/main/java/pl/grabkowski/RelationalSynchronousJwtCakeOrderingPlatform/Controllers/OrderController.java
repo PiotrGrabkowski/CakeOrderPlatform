@@ -1,5 +1,7 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
+@CrossOrigin
 public class OrderController {
 
     private final OrderService orderService;
@@ -22,9 +25,16 @@ public class OrderController {
 
 
     @PostMapping("/order")
-    public ResponseEntity<Order>  createOrder(@RequestBody OrderRequest orderRequest, @RequestParam(name = "file", required = false)MultipartFile multipartFile) {
+    public ResponseEntity<String>  createOrder(@RequestBody OrderRequest orderRequest) {
 
-        return ResponseEntity.ok(orderService.createOrder(orderRequest, multipartFile));
+        orderService.createOrder(orderRequest);
+        return ResponseEntity.ok("Zamówienie zostało przyjęte do realizacji");
+    }
+    @PostMapping("/order/authorized")
+    public ResponseEntity<String>  createAuthorizedOrder(@RequestBody OrderRequest orderRequest){
+        orderService.createOrder(orderRequest);
+        return ResponseEntity.ok("Zamówienie zostało przyjęte do realizacji");
+
     }
     @GetMapping("/all")
     public ResponseEntity<List<Order> >getAllOrders(){

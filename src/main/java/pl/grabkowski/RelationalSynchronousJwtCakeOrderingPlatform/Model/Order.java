@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,12 +30,12 @@ public class Order{
     @JoinColumn(name = "user_id")
     private User user;
     private Long phoneNumber;
+    private LocalDate eventDate;
     private String typeOfProduct;
     private String numberOfServings;
     @ElementCollection
     private Set<String> setOfTastes = new HashSet<>();
     private String description;
-    private String exampleLink;
     @OneToOne (cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id")
     private Image image;
@@ -48,15 +49,24 @@ public class Order{
     public Order() {
     }
 
-    public Order(Long id, User user, Long phoneNumber, String typeOfProduct, String numberOfServings, Set<String> setOfTastes, String description, String exampleLink, Image image, OrderStatus orderStatus) {
+    public Order(Long id,
+                 User user,
+                 Long phoneNumber,
+                 LocalDate eventDate,
+                 String typeOfProduct,
+                 String numberOfServings,
+                 Set<String> setOfTastes,
+                 String description,
+                 Image image,
+                 OrderStatus orderStatus) {
         this.id = id;
         this.user = user;
         this.phoneNumber = phoneNumber;
+        this.eventDate = eventDate;
         this.typeOfProduct = typeOfProduct;
         this.numberOfServings = numberOfServings;
         this.setOfTastes = setOfTastes;
         this.description = description;
-        this.exampleLink = exampleLink;
         this.image = image;
         this.orderStatus = orderStatus;
     }
@@ -117,13 +127,6 @@ public class Order{
         this.description = description;
     }
 
-    public String getExampleLink() {
-        return exampleLink;
-    }
-
-    public void setExampleLink(String exampleLink) {
-        this.exampleLink = exampleLink;
-    }
 
     public Image getImage() {
         return image;
@@ -141,5 +144,13 @@ public class Order{
 
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
     }
 }

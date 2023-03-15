@@ -1,13 +1,13 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
+
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.JsonMultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.*;
@@ -15,6 +15,8 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.*
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.SMS.SmsService;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.SecurityUtils;
 
+import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +50,8 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(OrderRequest orderRequest, MultipartFile multipartFile) {
+    public Order createOrder(OrderRequest orderRequest) {
+        System.out.println(orderRequest.toString());
         boolean authenticated = false;
         User user = null;
         Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
@@ -59,10 +62,13 @@ public class OrderService {
 
         Order newOrder = new Order();
 
-        if(multipartFile != null && !multipartFile.isEmpty()) {
-            Image image = imageService.add(multipartFile, imagesDestinationsProvider.getUsersExamplesDestination(), null);
+        JsonMultipartFile jsonMultipartFile = orderRequest.getJsonMultipartFile();
+        if(orderRequest.getJsonMultipartFile()!=null) {
+
+            Image image = imageService.add(jsonMultipartFile, imagesDestinationsProvider.getUsersExamplesDestination(), null);
             newOrder.setImage(image);
         }
+        System.out.println("Adding image ok");
 
 
         if(authenticated){
@@ -72,9 +78,12 @@ public class OrderService {
 
 
         }
+        System.out.println("setting user ok");
+
+        LocalDate eventDate = LocalDate.parse(orderRequest.getEventDate());
+        newOrder.setEventDate(eventDate);
         newOrder.setPhoneNumber(orderRequest.getPhoneNumber());
         newOrder.setDescription(orderRequest.getDescription());
-        newOrder.setExampleLink(orderRequest.getExampleLink());
         newOrder.setNumberOfServings(orderRequest.getNumberOfServings());
         newOrder.setSetOfTastes(orderRequest.getListOfTastes().stream().collect(Collectors.toSet()));
         newOrder.setTypeOfProduct(orderRequest.getTypeOfProduct());

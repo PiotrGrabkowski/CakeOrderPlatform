@@ -11,7 +11,9 @@ public class AccessTimeoutExceptionHandler {
 
     @ExceptionHandler(AccessTimeoutException.class)
     public ResponseEntity<String> handleException (AccessTimeoutException e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header("accessExpired","true").body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+             //   .header("accessExpired","true")
+                .body(e.getMessage());
 
     }
 }
