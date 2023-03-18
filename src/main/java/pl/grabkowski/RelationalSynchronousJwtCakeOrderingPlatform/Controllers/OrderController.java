@@ -6,11 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderResponse;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Order;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.OrderStatus;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.OrderService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/orders")
@@ -37,8 +39,8 @@ public class OrderController {
 
     }
     @GetMapping("/all")
-    public ResponseEntity<List<Order> >getAllOrders(){
-        return ResponseEntity.ok(orderService.getAllOrders());
+    public ResponseEntity<List<OrderResponse> >getAllOrders(){
+        return ResponseEntity.ok(orderService.getAllOrders().stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
 
     }
     @GetMapping("/{id}")

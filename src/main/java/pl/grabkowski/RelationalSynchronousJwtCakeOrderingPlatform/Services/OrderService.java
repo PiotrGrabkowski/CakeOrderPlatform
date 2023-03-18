@@ -16,6 +16,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.SMS.SmsService
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.SecurityUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,6 +83,7 @@ public class OrderService {
 
         LocalDate eventDate = LocalDate.parse(orderRequest.getEventDate());
         newOrder.setEventDate(eventDate);
+        newOrder.setCreationDate(LocalDateTime.now());
         newOrder.setPhoneNumber(orderRequest.getPhoneNumber());
         newOrder.setDescription(orderRequest.getDescription());
         newOrder.setNumberOfServings(orderRequest.getNumberOfServings());

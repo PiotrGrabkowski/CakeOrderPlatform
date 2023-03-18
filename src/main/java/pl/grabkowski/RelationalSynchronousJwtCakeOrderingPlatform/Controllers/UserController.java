@@ -14,6 +14,8 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.UserA
 
 import javax.mail.MessagingException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/user")
@@ -57,8 +59,10 @@ public class UserController {
     @GetMapping ("/confirm/{tokenValue}")
     public ResponseEntity<Void> confirmUser(@PathVariable(value = "tokenValue") String tokenValue){
         userAccountManager.confirmUser(tokenValue);
-        String msg = "Kontozostaloaktywowane";
-        String redirectionUri = clientProperties.getUrl()+ "/#/responseView/" + msg;
+
+        String msg = "Konto zostało aktywowane";
+        String URIComponent = URLEncoder.encode(msg, StandardCharsets.UTF_8);
+        String redirectionUri = clientProperties.getUrl()+ "/#/responseView/" + URIComponent;
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectionUri)).build();
     }
     @DeleteMapping("/{id}")

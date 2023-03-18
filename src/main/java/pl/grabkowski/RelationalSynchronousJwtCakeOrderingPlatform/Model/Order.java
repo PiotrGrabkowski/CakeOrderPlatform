@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ public class Order{
     private User user;
     private Long phoneNumber;
     private LocalDate eventDate;
+    private LocalDateTime creationDate;
     private String typeOfProduct;
     private String numberOfServings;
     @ElementCollection
@@ -40,6 +42,7 @@ public class Order{
     @JoinColumn(name = "image_id")
     private Image image;
 
+    @Enumerated(value = EnumType.STRING)
     private OrderStatus orderStatus;
 
 
@@ -58,7 +61,8 @@ public class Order{
                  Set<String> setOfTastes,
                  String description,
                  Image image,
-                 OrderStatus orderStatus) {
+                 OrderStatus orderStatus,
+                 LocalDateTime creationDate) {
         this.id = id;
         this.user = user;
         this.phoneNumber = phoneNumber;
@@ -69,6 +73,7 @@ public class Order{
         this.description = description;
         this.image = image;
         this.orderStatus = orderStatus;
+        this.creationDate = creationDate;
     }
 
     public Long getId() {
@@ -152,5 +157,13 @@ public class Order{
 
     public void setEventDate(LocalDate eventDate) {
         this.eventDate = eventDate;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }

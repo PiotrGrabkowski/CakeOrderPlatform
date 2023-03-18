@@ -9,6 +9,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.web.util.UriComponentsBuilder;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Order;
 
@@ -32,7 +33,6 @@ class OrderControllerIT {
         URI uri = URI.create("http://localhost:"+ port + "/orders/order");
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.setDescription("desciption");
-        orderRequest.setExampleLink("exampleLink");
         orderRequest.setListOfTastes(List.of("taste1", "taste2"));
         orderRequest.setNumberOfServings("numberOfServings");
         orderRequest.setPhoneNumber(000L);
@@ -49,6 +49,7 @@ class OrderControllerIT {
         assertEquals("desciption", order.getDescription());
 
     }
+
 
 
 

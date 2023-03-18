@@ -4,18 +4,19 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
 
 public class UserDto {
     private Long id;
-    // Must be an email
-    private String username;
+    private String username; // Must be an email
     private String role;
     private String nickname;
 
     public UserDto() {
     }
     public UserDto(User user){
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.role = user.getRole();
-        this.nickname = user.getNickname();
+        if(user != null) {
+            this.id = user.getId();
+            this.username = user.getUsername();
+            this.role = user.getRole();
+            this.nickname = user.getNickname();
+        }
 
     }
 

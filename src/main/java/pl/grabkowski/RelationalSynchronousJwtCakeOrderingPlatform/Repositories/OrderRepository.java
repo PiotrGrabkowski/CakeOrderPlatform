@@ -11,11 +11,11 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository <Order, Long> {
 
-    static final String findAllNativeQuery = "SELECT id, user_id, phone_number, type_of_product, number_of_servings, order_status FROM orders";
+    String findAllNativeQuery = "SELECT id, creation_date, description, event_date, image_id, number_of_servings, order_status, phone_number, type_of_product, user_id FROM orders";
     @Query(value = findAllNativeQuery, nativeQuery = true)
     List<Order> findAll();
 
-    static final String findByUserNativeQuery = "SELECT id, user_id, phone_number, type_of_product, number_of_servings, order_status FROM orders WHERE user_id = :userId";
+    String findByUserNativeQuery = "SELECT id, creation_date, description, event_date, image_id, number_of_servings, order_status, phone_number, type_of_product, user_id FROM orders WHERE user_id = :userId";
     @Query(value = findByUserNativeQuery, nativeQuery = true)
     List<Order> findAllByUser(Long userId);
 }
