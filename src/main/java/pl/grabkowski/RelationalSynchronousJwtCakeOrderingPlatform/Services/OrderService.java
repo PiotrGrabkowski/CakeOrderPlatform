@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.JsonMultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderResponse;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.*;
@@ -30,7 +31,6 @@ public class OrderService {
     private final TypeOfProductRepository typeOfProductRepository;
     private final TasteRepository tasteRepository;
     private final ImageService imageService;
-    private final ImagesDestinationsProvider imagesDestinationsProvider;
     private final SmsService smsService;
 
     public OrderService(OrderRepository orderRepository,
@@ -38,15 +38,14 @@ public class OrderService {
                         NumberOfServingsRepository numberOfServingsRepository,
                         TypeOfProductRepository typeOfProductRepository,
                         TasteRepository tasteRepository,
-                        ImageService imageService,
-                        ImagesDestinationsProvider imagesDestinationsProvider, SmsService smsService) {
+                        ImageService imageService, SmsService smsService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.numberOfServingsRepository = numberOfServingsRepository;
         this.typeOfProductRepository = typeOfProductRepository;
         this.tasteRepository = tasteRepository;
         this.imageService = imageService;
-        this.imagesDestinationsProvider = imagesDestinationsProvider;
+
         this.smsService = smsService;
     }
 
@@ -66,7 +65,7 @@ public class OrderService {
         JsonMultipartFile jsonMultipartFile = orderRequest.getJsonMultipartFile();
         if(orderRequest.getJsonMultipartFile()!=null) {
 
-            Image image = imageService.add(jsonMultipartFile, imagesDestinationsProvider.getUsersExamplesDestination(), null);
+            Image image = imageService.add(jsonMultipartFile, ImageDestination.USERS_EXAMPLES, null);
             newOrder.setImage(image);
         }
         System.out.println("Adding image ok");
@@ -119,7 +118,9 @@ public class OrderService {
        Order order =  this.orderRepository
                 .findById(id)
                .orElseThrow(() -> new IllegalArgumentException("Cannot find order with this id"));
-       User ordersUser = order.getUser();
+/*    unblock when everything is done
+
+   User ordersUser = order.getUser();
 
         if(!SecurityUtils.checkIfUserIsSignedIn()){
             throw new AuthorizationException("Access denied");
@@ -130,7 +131,7 @@ public class OrderService {
        if (!user.getRole().equals("ROLE_ADMIN")&& ordersUser!= null && user.getId().longValue()!=ordersUser.getId().longValue()){
 
           throw new AuthorizationException("Access denied");
-       }
+       }*/
 
        return order;
 
@@ -163,5 +164,8 @@ public class OrderService {
         order.setOrderStatus(orderStatus);
         this.orderRepository.save(order);
 
+    }
+
+    public void update(OrderResponse orderResponse) {
     }
 }

@@ -45,11 +45,11 @@ public class OrderController {
     }
     @GetMapping("/{id}")
 
-    public ResponseEntity<Order> getOrderById(@PathVariable(name ="id") Long id){
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable(name ="id") Long id){
 
 
 
-        return ResponseEntity.ok(orderService.getOrderById(id));
+        return ResponseEntity.ok(new OrderResponse(orderService.getOrderById(id)));
     }
 
 
@@ -60,17 +60,27 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersByUserId(id));
     }
     @DeleteMapping("/{id}")
-    public void deleteOrderById(@PathVariable(name ="id")Long id){
+    public ResponseEntity<String> deleteOrderById(@PathVariable(name ="id")Long id){
         this.orderService.deleteOrderById(id);
+        return ResponseEntity.ok("Poprawnie usunięto zamówienie");
     }
     @DeleteMapping("/all")
     public void deleteAll(){
         this.orderService.deleteAll();
 
     }
-    @PatchMapping("/{id}/{orderStatus}")
-    public void changeOrderStatus(@PathVariable(name ="id")Long id, @PathVariable(name ="orderStatus")OrderStatus orderStatus){
-        this.orderService.changeOrderStatus(id, orderStatus);
+    @PatchMapping("/order")
+    public ResponseEntity<String> updateOrder(@RequestBody OrderResponse orderResponse){
+        this.orderService.update(orderResponse);
+        return ResponseEntity.ok("Poprawnie zaktualizowano zamówienie");
+
+    }
+    @PatchMapping("/order/status")
+    public ResponseEntity<String> updateOrderStatus(@RequestBody OrderResponse orderResponse){
+        long id = orderResponse.getId();
+        OrderStatus status = orderResponse.getOrderStatus();
+        this.orderService.changeOrderStatus(id, status);
+        return ResponseEntity.ok("Poprawnie zaktualizowano status zamówienia");
 
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.ImageDestination;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.ImageRepository;
 
 import java.util.List;
@@ -16,23 +17,34 @@ public class ImageServiceImpl implements ImageService{
 
     private final ImageRepository imageRepository;
     private final ImageHostingService imageHostingService;
+    private final ImagesDestinationsProvider imagesDestinationsProvider;
 
 
 
-    public ImageServiceImpl(ImageRepository imageRepository, ImageHostingService imageHostingService) {
+    public ImageServiceImpl(ImageRepository imageRepository, ImageHostingService imageHostingService, ImagesDestinationsProvider imagesDestinationsProvider) {
         this.imageRepository = imageRepository;
         this.imageHostingService = imageHostingService;
 
+        this.imagesDestinationsProvider = imagesDestinationsProvider;
     }
 
 
 
 
     @Override
-    public Image add(MultipartFile multipartFile, String destination, String description) {
+    public Image add(MultipartFile multipartFile, ImageDestination imageDestination, String description) {
+
+        String destination = null;
+        if(imageDestination == ImageDestination.GALLERY){
+            destination = this.imagesDestinationsProvider.getGalleryDestination();
+        }
+        if(imageDestination == ImageDestination.USERS_EXAMPLES){
+            destination = this.imagesDestinationsProvider.getUsersExamplesDestination();
+        }
 
         Image image = this.imageHostingService.upload(multipartFile, destination);
         image.setDescription(description);
+        image.setImageDestination(imageDestination);
         return this.imageRepository.save(image);
 
     }
@@ -75,5 +87,8 @@ public class ImageServiceImpl implements ImageService{
         return this.imageRepository.findAll();
     }
 
-
+    @Override
+    public List<Image> getAllByImageDestination(ImageDestination imageDestination) {
+        return this.imageRepository.findAllByImageDestination(imageDestination.getValue());
+    }
 }

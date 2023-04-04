@@ -15,11 +15,15 @@ public class Image {
 
     private String description;
 
-    public Image(Long id, String url, String outerServiceId, String description) {
+    @Enumerated(value = EnumType.STRING)
+    private ImageDestination imageDestination;
+
+    public Image(Long id, String url, String outerServiceId, String description,ImageDestination imageDestination) {
         this.id = id;
         this.url = url;
         this.outerServiceId = outerServiceId;
         this.description = description;
+        this.imageDestination = imageDestination;
     }
 
     public Image() {
@@ -57,5 +61,13 @@ public class Image {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ImageDestination getImageDestination() {
+        return imageDestination;
+    }
+
+    public void setImageDestination(ImageDestination imageDestination) {
+        this.imageDestination = imageDestination;
     }
 }

@@ -2,7 +2,7 @@ package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO;
 
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Order;
-
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.OrderStatus;
 
 
 import java.time.LocalDate;
@@ -19,7 +19,7 @@ public class OrderResponse {
     private Set<String> setOfTastes;
     private String description;
     private Image image;
-    private String orderStatus;
+    private OrderStatus orderStatus;
     private LocalDateTime creationDate;
 
     public OrderResponse() {
@@ -35,7 +35,7 @@ public class OrderResponse {
             this.setOfTastes = order.getSetOfTastes();
             this.description = order.getDescription();
             this.image = order.getImage();
-            this.orderStatus = order.getOrderStatus().getValue();
+            this.orderStatus = order.getOrderStatus();
             this.user = new UserDto(order.getUser());
         }
     }
@@ -112,11 +112,11 @@ public class OrderResponse {
         this.image = image;
     }
 
-    public String getOrderStatus() {
+    public OrderStatus getOrderStatus() {
         return orderStatus;
     }
 
-    public void setOrderStatus(String orderStatus) {
+    public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
     }
 

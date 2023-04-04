@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.ImageDestination;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.ImageService;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.ImagesDestinationsProvider;
 
@@ -29,7 +30,7 @@ public class ImageController {
 
     @PostMapping("/gallery")
     public ResponseEntity<String> uploadImageToGallery (@RequestParam("image") MultipartFile multipartFile,  @RequestParam("description") String description){
-        this.imageService.add(multipartFile,this.imagesDestinationsProvider.getGalleryDestination(), description);
+        this.imageService.add(multipartFile, ImageDestination.GALLERY, description);
         return ResponseEntity.status(HttpStatus.OK).body("Poprawnie dodano zdjęcie");
     }
 
@@ -43,6 +44,6 @@ public class ImageController {
     @GetMapping ("/gallery/images")
     public List<Image> getAllImagesFromGallery(){
 
-        return this.imageService.getAll();
+        return this.imageService.getAllByImageDestination(ImageDestination.GALLERY);
     }
 }
