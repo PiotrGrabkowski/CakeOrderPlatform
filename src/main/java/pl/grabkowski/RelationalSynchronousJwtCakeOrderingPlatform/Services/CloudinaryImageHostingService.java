@@ -31,11 +31,11 @@ public class CloudinaryImageHostingService implements ImageHostingService{
         try {
             map = cloudinary.uploader().upload(multipartFile.getBytes(), options);
         } catch (IOException e) {
-            throw new ExternalServiceException("Wsytąpił problem z dodaniem zdjęcia do zewnętrznego serwisu. Spróbuj jeszcze raz.");
+            throw new ExternalServiceException("Wystąpił problem z dodaniem zdjęcia do zewnętrznego serwisu. Spróbuj jeszcze raz.");
         }
         if (map == null){
 
-            throw new ExternalServiceException("Wsytąpił problem z dodaniem zdjęcia do zewnętrznego serwisu. Spróbuj jeszcze raz.");
+            throw new ExternalServiceException("Wystąpił problem z dodaniem zdjęcia do zewnętrznego serwisu. Spróbuj jeszcze raz.");
         }
 
         Image image = new Image();

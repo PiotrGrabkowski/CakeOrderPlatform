@@ -8,6 +8,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.OrderSta
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class OrderResponse {
     private Long id;
@@ -32,7 +33,7 @@ public class OrderResponse {
             this.eventDate = order.getEventDate();
             this.typeOfProduct = order.getTypeOfProduct();
             this.numberOfServings = order.getNumberOfServings();
-            this.setOfTastes = order.getSetOfTastes();
+            this.setOfTastes = order.getOrderTasteSet().stream().map(taste -> taste.getName()).collect(Collectors.toSet());
             this.description = order.getDescription();
             this.image = order.getImage();
             this.orderStatus = order.getOrderStatus();

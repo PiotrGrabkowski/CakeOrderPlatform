@@ -7,11 +7,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ClientSideConfigurationProperties {
     private String url;
-    private String confirmationEndpoint;
+    private String registrationConfirmationEndpoint;
+    private String restorationConfirmationEndpoint;
 
-    public ClientSideConfigurationProperties(String url, String confirmationEndpoint) {
+    public ClientSideConfigurationProperties(String url, String registrationConfirmationEndpoint, String restorationConfirmationEndpoint) {
         this.url = url;
-        this.confirmationEndpoint = confirmationEndpoint;
+        this.registrationConfirmationEndpoint = registrationConfirmationEndpoint;
+        this.restorationConfirmationEndpoint = restorationConfirmationEndpoint;
     }
 
     public ClientSideConfigurationProperties() {
@@ -25,11 +27,19 @@ public class ClientSideConfigurationProperties {
         this.url = url;
     }
 
-    public String getConfirmationEndpoint() {
-        return confirmationEndpoint;
+    public String getRegistrationConfirmationEndpoint() {
+        return registrationConfirmationEndpoint;
     }
 
-    public void setConfirmationEndpoint(String confirmationEndpoint) {
-        this.confirmationEndpoint = confirmationEndpoint;
+    public void setRegistrationConfirmationEndpoint(String registrationConfirmationEndpoint) {
+        this.registrationConfirmationEndpoint = registrationConfirmationEndpoint;
+    }
+
+    public String getRestorationConfirmationEndpoint() {
+        return restorationConfirmationEndpoint;
+    }
+
+    public void setRestorationConfirmationEndpoint(String restorationConfirmationEndpoint) {
+        this.restorationConfirmationEndpoint = restorationConfirmationEndpoint;
     }
 }

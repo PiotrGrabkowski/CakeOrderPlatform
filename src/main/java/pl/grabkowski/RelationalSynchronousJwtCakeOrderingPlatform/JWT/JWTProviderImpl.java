@@ -44,14 +44,14 @@ public class JWTProviderImpl implements JWTProvider{
         Long expirationTime = now + jwtConfigurationProperties.getExpirationTime();
 
 
-
+        String msg = "Zostałeś poprawnie zalogowany";
         String jwt = Jwts.builder()
                 .setSubject(authenticate.getName())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(expirationTime))
                 .signWith(Keys.hmacShaKeyFor(jwtConfigurationProperties.getSecretKey().getBytes()))
                 .compact();
-        return  new JWTTransferingObject(jwt,userDto);
+        return  new JWTTransferingObject(jwt,userDto,msg);
 
     }
 }

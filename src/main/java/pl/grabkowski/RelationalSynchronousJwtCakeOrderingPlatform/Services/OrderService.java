@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderFilterOptions;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.JsonMultipartFile;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderResponse;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.SMS.SmsService;
@@ -18,9 +20,8 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.Secur
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -51,7 +52,7 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(OrderRequest orderRequest) {
-        System.out.println(orderRequest.toString());
+
         boolean authenticated = false;
         User user = null;
         Authentication authentication =  SecurityContextHolder.getContext().getAuthentication();
@@ -68,7 +69,7 @@ public class OrderService {
             Image image = imageService.add(jsonMultipartFile, ImageDestination.USERS_EXAMPLES, null);
             newOrder.setImage(image);
         }
-        System.out.println("Adding image ok");
+
 
 
         if(authenticated){
@@ -78,7 +79,7 @@ public class OrderService {
 
 
         }
-        System.out.println("setting user ok");
+
 
         LocalDate eventDate = LocalDate.parse(orderRequest.getEventDate());
         newOrder.setEventDate(eventDate);
@@ -86,7 +87,7 @@ public class OrderService {
         newOrder.setPhoneNumber(orderRequest.getPhoneNumber());
         newOrder.setDescription(orderRequest.getDescription());
         newOrder.setNumberOfServings(orderRequest.getNumberOfServings());
-        newOrder.setSetOfTastes(orderRequest.getListOfTastes().stream().collect(Collectors.toSet()));
+        orderRequest.getListOfTastes().stream().forEach(taste -> newOrder.addTaste(new OrderTaste(taste)));
         newOrder.setTypeOfProduct(orderRequest.getTypeOfProduct());
         newOrder.setOrderStatus(OrderStatus.NEW);
 
@@ -112,6 +113,12 @@ public class OrderService {
 
     public List<Order> getAllOrders(){
         return this.orderRepository.findAll();
+
+    }
+
+    public List<Order> getFilteredOrders(OrderFilterOptions orderFilterOptions){
+
+        return this.orderRepository.findFiltered(orderFilterOptions);
 
     }
     public Order getOrderById(Long id){
@@ -151,7 +158,14 @@ public class OrderService {
 
         return this.orderRepository.findAllByUser(id);
     }
+    @Transactional
     public void deleteOrderById(Long id){
+        Order order = this.orderRepository.findById(id).orElseThrow(()-> new NoSuchElementInDatabaseException("Nie znaleziono zamówienia o podanym identyfikatorze."));
+        Image image = order.getImage();
+        if(image !=null){
+            this.imageService.delete(image.getId());
+        }
+
         this.orderRepository.deleteById(id);
 
     }

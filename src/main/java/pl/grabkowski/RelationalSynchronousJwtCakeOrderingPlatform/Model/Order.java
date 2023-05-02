@@ -8,9 +8,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
 
 
 @Entity
@@ -27,7 +28,7 @@ public class Order{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne (fetch = FetchType.EAGER)
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
     private Long phoneNumber;
@@ -35,10 +36,10 @@ public class Order{
     private LocalDateTime creationDate;
     private String typeOfProduct;
     private String numberOfServings;
-    @ElementCollection
-    private Set<String> setOfTastes = new HashSet<>();
+    @OneToMany (mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<OrderTaste> orderTasteSet = new HashSet<>();
     private String description;
-    @OneToOne (cascade = CascadeType.ALL)
+    @OneToOne (cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     private Image image;
 
@@ -58,7 +59,7 @@ public class Order{
                  LocalDate eventDate,
                  String typeOfProduct,
                  String numberOfServings,
-                 Set<String> setOfTastes,
+                 Set<OrderTaste> orderTasteSet,
                  String description,
                  Image image,
                  OrderStatus orderStatus,
@@ -69,11 +70,17 @@ public class Order{
         this.eventDate = eventDate;
         this.typeOfProduct = typeOfProduct;
         this.numberOfServings = numberOfServings;
-        this.setOfTastes = setOfTastes;
+        this.orderTasteSet = orderTasteSet;
         this.description = description;
         this.image = image;
         this.orderStatus = orderStatus;
         this.creationDate = creationDate;
+    }
+
+    public void addTaste(OrderTaste orderTaste){
+        this.orderTasteSet.add(orderTaste);
+        orderTaste.setOrder(this);
+
     }
 
     public Long getId() {
@@ -116,12 +123,12 @@ public class Order{
         this.numberOfServings = numberOfServings;
     }
 
-    public Set<String> getSetOfTastes() {
-        return setOfTastes;
+    public Set<OrderTaste> getOrderTasteSet() {
+        return orderTasteSet;
     }
 
-    public void setSetOfTastes(Set<String> setOfTastes) {
-        this.setOfTastes = setOfTastes;
+    public void setOrderTasteSet(Set<OrderTaste> orderTasteSet) {
+        this.orderTasteSet = orderTasteSet;
     }
 
     public String getDescription() {

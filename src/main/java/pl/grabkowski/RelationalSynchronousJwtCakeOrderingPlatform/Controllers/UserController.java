@@ -5,8 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.ClientSideConfigurationProperties;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.LoginRequest;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.RegisterRequest;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTProvider;
 
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTTransferingObject;
@@ -34,17 +33,17 @@ public class UserController {
 
     @PostMapping("/login")
 
-    public ResponseEntity<String> login (@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<LoginResponse> login (@RequestBody LoginRequest loginRequest){
 
         JWTTransferingObject jwtTransferingObject = userAccountManager.login(loginRequest);
         String jwt = jwtTransferingObject.getJwt();
-        String role = jwtTransferingObject.getUser().getRole();
+        LoginResponse loginResponse = new LoginResponse(jwtTransferingObject.getUser(),
+                jwtTransferingObject.getMsg());
 
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Authorization", "Bearer " + jwt)
-                .header("Role", role)
-                .body("Zostałeś poprawnie zalogowany");
+                .body(loginResponse);
 
 
     }
@@ -56,18 +55,37 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body("Na podany email wysłano link aktywacyjny, prosimy o aktywację konta");
 
     }
-    @GetMapping ("/confirm/{tokenValue}")
-    public ResponseEntity<Void> confirmUser(@PathVariable(value = "tokenValue") String tokenValue){
+    @GetMapping ("/registrationConfirmation/{tokenValue}")
+    public ResponseEntity<String> confirmUser(@PathVariable(value = "tokenValue") String tokenValue){
         userAccountManager.confirmUser(tokenValue);
 
-        String msg = "Konto zostało aktywowane";
-        String URIComponent = URLEncoder.encode(msg, StandardCharsets.UTF_8);
-        String redirectionUri = clientProperties.getUrl()+ "/#/responseView/" + URIComponent;
-        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectionUri)).build();
+       // String msg = "Konto zostało aktywowane";
+       // String URIComponent = URLEncoder.encode(msg, StandardCharsets.UTF_8);
+        // String redirectionUri = clientProperties.getUrl()+ "/#/responseView/" + URIComponent;
+        return ResponseEntity.status(HttpStatus.OK).body("Konto zostało aktywowane");
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById (@PathVariable(name = "id") Long id){
         userAccountManager.deleteUserById(id);
         return ResponseEntity.status(HttpStatus.OK).body("Użytkownik został usunięty");
+    }
+
+    @PostMapping("/passwordChange")
+    public ResponseEntity<String> changePassword(@RequestBody PasswordChangeDTO passwordChangeDTO){
+
+        this.userAccountManager.changePassword(passwordChangeDTO);
+        return ResponseEntity.ok("Hasło zostało zmienione");
+    }
+    @PostMapping("/passwordRestoration")
+    public ResponseEntity<String> restorePassword(@RequestBody UserDto userDto){
+
+        this.userAccountManager.restorePassword(userDto);
+        return ResponseEntity.ok("Na podany e-mail wysłano link resetujący hasło. Prosimy o postępowanie zgodnie ze wskazówkami.");
+    }
+    @GetMapping("/restorationConfirmation/{tokenValue}")
+    public ResponseEntity<String> confirmRestoration(@PathVariable(value = "tokenValue") String tokenValue){
+        this.userAccountManager.confirmRestoration(tokenValue);
+        return ResponseEntity.ok("Nowe hasło zostało wysłane na Twój adres e-mail");
+
     }
 }

@@ -15,21 +15,36 @@ public class SmsPlanetConfigurationProperties {
     private String msg;
     private String uri;
 
+    private boolean isNotificationEnabled;
+
+
+
+
     public SmsPlanetConfigurationProperties(String apiKey,
                                             String apiPassword,
                                             String from,
                                             String to,
                                             String msg,
-                                            String uri) {
+                                            String uri,
+                                            boolean isNotificationEnabled) {
         this.apiKey = apiKey;
         this.apiPassword = apiPassword;
         this.from = from;
         this.to = to;
         this.msg = msg;
         this.uri = uri;
+        this.isNotificationEnabled = isNotificationEnabled;
     }
 
     public SmsPlanetConfigurationProperties() {
+    }
+
+    public boolean getIsNotificationEnabled() {
+        return isNotificationEnabled;
+    }
+
+    public void setIsNotificationEnabled(boolean isNotificationEnabled) {
+        this.isNotificationEnabled = isNotificationEnabled;
     }
 
     public String getApiKey() {

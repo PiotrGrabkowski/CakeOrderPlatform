@@ -1,10 +1,8 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderFilterOptions;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderResponse;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Order;
@@ -43,6 +41,12 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders().stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
 
     }
+    @PostMapping("/filtered")
+    public ResponseEntity<List<OrderResponse> >getFilteredOrders(@RequestBody OrderFilterOptions orderFilterOptions){
+
+       return ResponseEntity.ok(orderService.getFilteredOrders(orderFilterOptions).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
+
+    }
     @GetMapping("/{id}")
 
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable(name ="id") Long id){
@@ -55,10 +59,11 @@ public class OrderController {
 
 
     @GetMapping("/all/{id}")
-    public ResponseEntity<List<Order>> getOrdersByUsernameId(@PathVariable(name ="id")Long id){
+    public ResponseEntity<List<OrderResponse>> getOrdersByUsernameId(@PathVariable(name ="id")Long id){
 
-        return ResponseEntity.ok(orderService.getOrdersByUserId(id));
+        return ResponseEntity.ok(orderService.getOrdersByUserId(id).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrderById(@PathVariable(name ="id")Long id){
         this.orderService.deleteOrderById(id);
