@@ -23,8 +23,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Must be an email
-    private String username;
+
+    private String username; // Must be an email
     private String password;
     private String role;
     private String nickname;

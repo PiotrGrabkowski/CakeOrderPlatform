@@ -20,8 +20,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         this.entityManager = entityManager;
     }
 
-    @Override
-    public List<Order> findFiltered(OrderFilterOptions orderFilterOptions) {
+    private String createParamsFromOrderFilterOptionsDto(OrderFilterOptions orderFilterOptions){
         String params = "";
         List<String> listOfClauses= new ArrayList<>();
 
@@ -83,11 +82,33 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             }
         }
 
+        return params;
+
+
+    }
+
+    @Override
+    public List<Order> findFiltered(OrderFilterOptions orderFilterOptions) {
+
+        String params = this.createParamsFromOrderFilterOptionsDto(orderFilterOptions);
+
 
         return this.entityManager.createQuery(this.findFilteredOrders + params).getResultList();
     }
 
+    @Override
+    public List<Order> findFilteredByUserId(OrderFilterOptions orderFilterOptions, Long id) {
+        String params = this.createParamsFromOrderFilterOptionsDto(orderFilterOptions);
+        String query = this.findFilteredOrders;
+        String whereUserId = " u.id = ";
+        if(params !=null && params.length() >0){
+            query = query + params + " AND" + whereUserId + id;
+        }
+        else {
 
+            query = query + " WHERE " + whereUserId + id;
+        }
+        return this.entityManager.createQuery(query).getResultList();
 
-
+    }
 }

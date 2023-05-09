@@ -8,4 +8,5 @@ import java.util.List;
 public interface OrderRepositoryCustom {
 
     List<Order> findFiltered(OrderFilterOptions orderFilterOptions);
+    List<Order> findFilteredByUserId (OrderFilterOptions orderFilterOptions, Long id);
 }

@@ -33,10 +33,10 @@ public class JWTAuthenticationProviderImpl implements JWTAuthenticationProvider 
             parseJwt(jwt);
         } catch (ExpiredJwtException e) {
 
-            throw new AccessTimeoutException("Sesja wygasła, zaloguj się ponownie.");
+            throw new AccessTimeoutException("Sesja wygasła, zaloguj się ponownie");
         } catch (Exception e) {
 
-            throw new JwtException("Blad w procesie autoryzacji, zaloguj się jeszcze raz.");
+            throw new JwtException("Błąd w procesie autoryzacji, zaloguj się jeszcze raz.");
         }
         return true;
 

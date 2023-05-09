@@ -12,6 +12,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.LoginReque
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.PasswordChangeDTO;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.RegisterRequest;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.UserDto;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.ExternalServiceException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.UserAlreadyExistsException;
@@ -21,6 +22,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.UserToken;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.UserRepository;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.UserTokenRepository;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.SecurityUtils;
 
 import javax.mail.MessagingException;
 import java.util.Random;
@@ -93,6 +95,10 @@ public class UserAccountManager {
        user.setUserEnabled(true);
        userRepository.save(user);
     }
+    public boolean checkIfUserAlreadyExists(String username){
+
+        return this.userRepository.findByUsername(username).isPresent();
+    }
 
     public void deleteUserById (Long id){
         User user = userRepository.findById(id)
@@ -120,7 +126,7 @@ public class UserAccountManager {
         String confirmationEndpoint = clientSideConfigurationProperties.getUrl() +clientSideConfigurationProperties.getRestorationConfirmationEndpoint() + token;
         String from = "PINKSAGITARIUS@alwaysdata.net";
         String subject = "Prośba o potwierdzenie zmiany hasła na platformie do zamawiania tortów PINK SAGITARIUS";
-        System.out.println(confirmationEndpoint);
+
         String content = "Klinkij w podany link w celu potiwerdzenia zmiany hasła:  " + "<a href=\"" +confirmationEndpoint +"\">Kliknij aby potwierdzic</a>";
         try {
             mailService.sendMail(user.getUsername(), from, subject, content, true);
@@ -147,5 +153,21 @@ public class UserAccountManager {
         user.setPassword(this.passwordEncoder.encode(Integer.toString(temporaryPassword)));
         this.userRepository.save(user);
 
+    }
+
+    public User getById(Long id) {
+        User user = this.userRepository.findById(id).orElseThrow(()->new NoSuchElementInDatabaseException("Nie znaleziono użytkownika o podanym numerze id"));
+
+        if(!SecurityUtils.checkIfUserIsSignedIn()){
+            throw new AuthorizationException("Access denied");
+
+        }
+        String name = SecurityUtils.getSignedInUsersName();
+        User signedInUser = this.userRepository.findByUsername(name).orElseThrow(() ->new UsernameNotFoundException("User not found."));
+        if (!signedInUser.getRole().equals("ROLE_ADMIN") && user.getId().longValue()!=signedInUser.getId().longValue()){
+
+            throw new AuthorizationException("Access denied");
+        }
+        return user;
     }
 }

@@ -7,6 +7,7 @@ public class UserDto {
     private String username; // Must be an email
     private String role;
     private String nickname;
+    private String phoneNumber;
 
     public UserDto() {
     }
@@ -16,15 +17,20 @@ public class UserDto {
             this.username = user.getUsername();
             this.role = user.getRole();
             this.nickname = user.getNickname();
+            if(user.getPhoneNumber()!=null){
+                this.phoneNumber = user.getPhoneNumber().toString();
+            }
+
         }
 
     }
 
-    public UserDto(Long id, String username, String role, String nickname) {
+    public UserDto(Long id, String username, String role, String nickname, String phoneNumber) {
         this.id = id;
         this.username = username;
         this.role = role;
         this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
     }
 
     public Long getId() {
@@ -57,5 +63,13 @@ public class UserDto {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

@@ -47,6 +47,12 @@ public class OrderController {
        return ResponseEntity.ok(orderService.getFilteredOrders(orderFilterOptions).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
 
     }
+    @PostMapping("/filtered/user/{id}")
+    public ResponseEntity<List<OrderResponse>>getFilteredOrdersByUserId(@RequestBody OrderFilterOptions orderFilterOptions, @PathVariable(name ="id") Long id){
+
+        return ResponseEntity.ok(orderService.getFilteredByUserId(orderFilterOptions, id).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
+
+    }
     @GetMapping("/{id}")
 
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable(name ="id") Long id){

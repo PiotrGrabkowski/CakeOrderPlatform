@@ -121,11 +121,15 @@ public class OrderService {
         return this.orderRepository.findFiltered(orderFilterOptions);
 
     }
+    public List<Order> getFilteredByUserId(OrderFilterOptions orderFilterOptions, Long id){
+
+        return this.orderRepository.findFilteredByUserId(orderFilterOptions, id);
+    }
     public Order getOrderById(Long id){
        Order order =  this.orderRepository
                 .findById(id)
                .orElseThrow(() -> new IllegalArgumentException("Cannot find order with this id"));
-/*    unblock when everything is done
+
 
    User ordersUser = order.getUser();
 
@@ -138,7 +142,7 @@ public class OrderService {
        if (!user.getRole().equals("ROLE_ADMIN")&& ordersUser!= null && user.getId().longValue()!=ordersUser.getId().longValue()){
 
           throw new AuthorizationException("Access denied");
-       }*/
+       }
 
        return order;
 

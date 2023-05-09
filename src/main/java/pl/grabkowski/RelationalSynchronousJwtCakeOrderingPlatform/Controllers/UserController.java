@@ -9,6 +9,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTProvider;
 
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTTransferingObject;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.UserAccountManager;
 
 import javax.mail.MessagingException;
@@ -46,6 +47,11 @@ public class UserController {
                 .body(loginResponse);
 
 
+    }
+    @GetMapping("/presence/{username}")
+    public ResponseEntity<Boolean> checkIfUserAlreadyExists(@PathVariable(name = "username") String username){
+        boolean isPresent = this.userAccountManager.checkIfUserAlreadyExists(username);
+        return ResponseEntity.ok(isPresent);
     }
 
     @PostMapping ("/register")
@@ -87,5 +93,14 @@ public class UserController {
         this.userAccountManager.confirmRestoration(tokenValue);
         return ResponseEntity.ok("Nowe hasło zostało wysłane na Twój adres e-mail");
 
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable(name = "id")Long id){
+        User user = this.userAccountManager.getById(id);
+        user.setPassword("");
+        user.setUserToken(null);
+        user.setSetOfOrders(null);
+        return ResponseEntity.ok(user);
     }
 }

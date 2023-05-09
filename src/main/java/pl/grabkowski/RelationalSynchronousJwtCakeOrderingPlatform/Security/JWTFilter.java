@@ -1,6 +1,8 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security;
 
 import io.jsonwebtoken.JwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -13,11 +15,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class JWTFilter extends OncePerRequestFilter {
+    private Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
     private final JWTAuthenticationProvider jwtAuthenticationProvider;
 
     public JWTFilter(JWTAuthenticationProvider jwtAuthenticationProvider) {
@@ -39,15 +44,17 @@ public class JWTFilter extends OncePerRequestFilter {
                 try {
                     jwtAuthenticationProvider.provideAuthentication(jwt);
                 } catch (AccessTimeoutException e) {
-                    e.printStackTrace();
+                    logger.info(e.getClass() + " was thrown in " + OncePerRequestFilter.class + " with message: " + e.getMessage());
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().print(e.getMessage());
+                    String URIComponent = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+                    response.getWriter().print(URIComponent);
                     return;
                 }
                 catch (JwtException e) {
-                    e.printStackTrace();
+                    logger.info(e.getClass() + " was thrown in " + OncePerRequestFilter.class + " with message: " + e.getMessage());
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().print(e.getMessage());
+                    String URIComponent = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+                    response.getWriter().print(URIComponent);
                     return;
                 }
 
