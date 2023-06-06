@@ -16,6 +16,7 @@ import javax.mail.MessagingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/user")
@@ -34,9 +35,10 @@ public class UserController {
 
     @PostMapping("/login")
 
-    public ResponseEntity<LoginResponse> login (@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<LoginResponse> login (@RequestBody LoginRequest loginRequest,
+                                                @RequestHeader(name = "Accept-Language") Locale locale){
 
-        JWTTransferingObject jwtTransferingObject = userAccountManager.login(loginRequest);
+        JWTTransferingObject jwtTransferingObject = userAccountManager.login(loginRequest, locale);
         String jwt = jwtTransferingObject.getJwt();
         LoginResponse loginResponse = new LoginResponse(jwtTransferingObject.getUser(),
                 jwtTransferingObject.getMsg());
@@ -102,5 +104,11 @@ public class UserController {
         user.setUserToken(null);
         user.setSetOfOrders(null);
         return ResponseEntity.ok(user);
+    }
+    @PatchMapping()
+    public ResponseEntity<String> updateUser(@RequestBody UserDto userDto){
+
+        this.userAccountManager.update(userDto);
+        return ResponseEntity.ok("Poprawnie zaktualizowano dane użytkownika");
     }
 }

@@ -25,6 +25,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.U
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.SecurityUtils;
 
 import javax.mail.MessagingException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -52,9 +53,9 @@ public class UserAccountManager {
         this.authenticationManager = authenticationManager;
     }
 
-    public JWTTransferingObject login (LoginRequest loginRequest){
+    public JWTTransferingObject login (LoginRequest loginRequest, Locale locale){
 
-        return jwtProvider.provideJWT(loginRequest);
+        return jwtProvider.provideJWT(loginRequest, locale);
     }
 
     @Transactional
@@ -169,5 +170,43 @@ public class UserAccountManager {
             throw new AuthorizationException("Access denied");
         }
         return user;
+    }
+
+    public void update(UserDto userDto) {
+        User user = this.getById(userDto.getId());
+        if(!this.checkIfFieldEmpty(userDto.getNickname())){
+
+            user.setNickname(userDto.getNickname());
+        }
+        if(!this.checkIfFieldEmpty(userDto.getPhoneNumber())){
+
+            user.setPhoneNumber(Long.parseLong(userDto.getPhoneNumber()));
+        }
+        if(!this.checkIfFieldEmpty(userDto.getUsername())){
+
+            user.setUsername(userDto.getUsername());
+        }
+        if(!this.checkIfFieldEmpty(userDto.getRole())){
+
+            user.setRole(userDto.getRole());
+        }
+        this.userRepository.save(user);
+
+
+    }
+    private boolean checkIfFieldEmpty(Object field){
+
+        if(field == null){
+
+            return true;
+        }
+        if(field instanceof String){
+            String stringField = (String) field;
+            if(stringField.isEmpty()||stringField.isBlank()){
+                return true;
+            }
+
+        }
+        return false;
     }
 }
