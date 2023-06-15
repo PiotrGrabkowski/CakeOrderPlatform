@@ -173,4 +173,21 @@ public class Order{
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", user=" + user +
+                ", phoneNumber=" + phoneNumber +
+                ", eventDate=" + eventDate +
+                ", creationDate=" + creationDate +
+                ", typeOfProduct='" + typeOfProduct + '\'' +
+                ", numberOfServings='" + numberOfServings + '\'' +
+                ", orderTasteSet=" + orderTasteSet +
+                ", description='" + description + '\'' +
+                ", image=" + image +
+                ", orderStatus=" + orderStatus +
+                '}';
+    }
 }

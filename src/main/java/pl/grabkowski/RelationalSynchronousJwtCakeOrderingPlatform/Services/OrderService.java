@@ -118,7 +118,7 @@ public class OrderService {
 
     public List<Order> getFilteredOrders(OrderFilterOptions orderFilterOptions){
 
-        return this.orderRepository.findFiltered(orderFilterOptions);
+        return this.orderRepository.findFiltered(orderFilterOptions, null);
 
     }
     public List<Order> getFilteredByUserId(OrderFilterOptions orderFilterOptions, Long id){

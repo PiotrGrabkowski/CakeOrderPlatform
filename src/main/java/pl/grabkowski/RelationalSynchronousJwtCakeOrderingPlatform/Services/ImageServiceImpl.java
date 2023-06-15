@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.Page;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.ImageDestination;
@@ -91,4 +92,13 @@ public class ImageServiceImpl implements ImageService{
     public List<Image> getAllByImageDestination(ImageDestination imageDestination) {
         return this.imageRepository.findAllByImageDestination(imageDestination.getValue());
     }
+
+    @Override
+    public Page<Image> getAllByImageDestination(ImageDestination imageDestination, Page<Image> page) {
+
+        return this.imageRepository.findAllByImageDestination(imageDestination.getValue(),page);
+
+    }
+
+
 }

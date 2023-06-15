@@ -10,7 +10,7 @@ import java.util.List;
 
 
 @Repository
-public interface ImageRepository extends JpaRepository<Image, Long> {
+public interface ImageRepository extends JpaRepository<Image, Long>, ImageRepositoryCustom {
     String findByImageDestinationNativeQuery = "SELECT id, url, outer_service_id, description, image_destination FROM image WHERE image_destination = :imageDestination";
     @Query(value = findByImageDestinationNativeQuery, nativeQuery = true)
     List<Image> findAllByImageDestination(String imageDestination);

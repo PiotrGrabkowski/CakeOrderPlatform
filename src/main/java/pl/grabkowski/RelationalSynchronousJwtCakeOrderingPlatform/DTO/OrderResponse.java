@@ -33,7 +33,9 @@ public class OrderResponse {
             this.eventDate = order.getEventDate();
             this.typeOfProduct = order.getTypeOfProduct();
             this.numberOfServings = order.getNumberOfServings();
-            this.setOfTastes = order.getOrderTasteSet().stream().map(taste -> taste.getName()).collect(Collectors.toSet());
+            if(order.getOrderTasteSet()!=null){
+                this.setOfTastes = order.getOrderTasteSet().stream().map(taste -> taste.getName()).collect(Collectors.toSet());
+            }
             this.description = order.getDescription();
             this.image = order.getImage();
             this.orderStatus = order.getOrderStatus();

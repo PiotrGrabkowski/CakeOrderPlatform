@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.Page;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.ImageDestination;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.ImageService;
@@ -45,5 +46,11 @@ public class ImageController {
     public List<Image> getAllImagesFromGallery(){
 
         return this.imageService.getAllByImageDestination(ImageDestination.GALLERY);
+    }
+    @GetMapping("/gallery/page")
+    public Page<Image> getPageOfImagesFromGallery(@RequestParam(name ="page")Long currentPage, @RequestParam(name = "itemsPerPage")Long itemsPerPage){
+        Page<Image> page = new Page<>(currentPage, itemsPerPage);
+        return this.imageService.getAllByImageDestination(ImageDestination.GALLERY, page);
+
     }
 }

@@ -1,6 +1,7 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services;
 
 import org.springframework.web.multipart.MultipartFile;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.Page;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Image;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.ImageDestination;
 
@@ -14,6 +15,7 @@ public interface ImageService {
     Image getById(Long id);
     List<Image> getAll();
     List<Image> getAllByImageDestination(ImageDestination imageDestination);
+    Page<Image> getAllByImageDestination (ImageDestination imageDestination, Page<Image> page);
 
 
 }
