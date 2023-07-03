@@ -1,15 +1,19 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Controllers;
 
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderFilterOptions;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderResponse;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.Order;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.OrderStatus;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.OrderService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @RestController
@@ -18,9 +22,11 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
+    private final MessageSource messageSource;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, MessageSource messageSource) {
         this.orderService = orderService;
+        this.messageSource = messageSource;
     }
 
 
@@ -42,15 +48,18 @@ public class OrderController {
 
     }
     @PostMapping("/filtered")
-    public ResponseEntity<List<OrderResponse> >getFilteredOrders(@RequestBody OrderFilterOptions orderFilterOptions){
+    public ResponseEntity<Page<OrderResponse>>getFilteredOrders(@RequestBody OrderFindRequestOptions orderFindRequestOptions){
+        Page<OrderResponse> page = this.convertPageOfOrdersToPageOfOrderResponses(this.orderService.getFilteredOrders(orderFindRequestOptions));
 
-       return ResponseEntity.ok(orderService.getFilteredOrders(orderFilterOptions).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
+       return ResponseEntity.ok(page);
 
     }
     @PostMapping("/filtered/user/{id}")
-    public ResponseEntity<List<OrderResponse>>getFilteredOrdersByUserId(@RequestBody OrderFilterOptions orderFilterOptions, @PathVariable(name ="id") Long id){
+    public ResponseEntity<Page<OrderResponse>>getFilteredOrdersByUserId(@RequestBody OrderFindRequestOptions orderFindRequestOptions, @PathVariable(name ="id") Long id){
 
-        return ResponseEntity.ok(orderService.getFilteredByUserId(orderFilterOptions, id).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList()));
+        Page<OrderResponse> page = this.convertPageOfOrdersToPageOfOrderResponses(this.orderService.getFilteredByUserId(orderFindRequestOptions, id));
+
+        return ResponseEntity.ok(page);
 
     }
     @GetMapping("/{id}")
@@ -92,6 +101,36 @@ public class OrderController {
         OrderStatus status = orderResponse.getOrderStatus();
         this.orderService.changeOrderStatus(id, status);
         return ResponseEntity.ok("Poprawnie zaktualizowano status zamówienia");
+
+    }
+    @GetMapping("/order_sorting_parameters")
+    public ResponseEntity<List<OrderSortingParameterDto>> getSortingParameters(){
+        Locale locale = (Locale) RequestContextHolder.getRequestAttributes().getAttribute("locale", RequestAttributes.SCOPE_REQUEST);
+        List<OrderSortingParameterDto> list = new ArrayList<>();
+        Arrays.asList(OrderSortingParameters.values()).forEach(value ->{
+            String displayedName =  this.messageSource.getMessage("order.sorting."+ value, new Object[]{}, locale);
+            OrderSortingParameterDto dto = new OrderSortingParameterDto();
+            dto.setDisplayedName(displayedName);
+            dto.setDatabaseParameter(value);
+            list.add(dto);
+        });
+
+        return ResponseEntity.ok(list);
+
+
+    }
+
+
+    private Page<OrderResponse> convertPageOfOrdersToPageOfOrderResponses(Page<Order>page){
+        List<OrderResponse> list = page.getListOfItems().stream().map(order-> new OrderResponse(order)).collect(Collectors.toList());
+        Page<OrderResponse> returnedPage = new Page<>();
+        returnedPage.setCurrentPage(page.getCurrentPage());
+        returnedPage.setNumberOfPages(page.getNumberOfPages());
+        returnedPage.setItemsPerPage(page.getItemsPerPage());
+        returnedPage.setOffset(page.getOffset());
+        returnedPage.setTotalNumberOfItems(page.getTotalNumberOfItems());
+        returnedPage.setListOfItems(list);
+        return returnedPage;
 
     }
 }

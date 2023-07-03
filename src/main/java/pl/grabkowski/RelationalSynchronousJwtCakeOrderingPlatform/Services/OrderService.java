@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderFilterOptions;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.JsonMultipartFile;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderRequest;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.OrderResponse;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.*;
@@ -116,14 +113,39 @@ public class OrderService {
 
     }
 
-    public List<Order> getFilteredOrders(OrderFilterOptions orderFilterOptions){
-
-        return this.orderRepository.findFiltered(orderFilterOptions, null);
+    public Page<Order> getFilteredOrders(OrderFindRequestOptions orderFindRequestOptions){
+        if(orderFindRequestOptions!=null){
+            OrderFilterOptions orderFilterOptions = orderFindRequestOptions.getOrderFilterOptions();
+            Sort sort = orderFindRequestOptions.getSort();
+            Page<Order>page = orderFindRequestOptions.getPage();
+            return this.orderRepository.findFiltered(orderFilterOptions,sort,page);
+        }
+        return this.orderRepository.findFiltered(null,null,null);
 
     }
-    public List<Order> getFilteredByUserId(OrderFilterOptions orderFilterOptions, Long id){
+    public Page<Order> getFilteredByUserId(OrderFindRequestOptions orderFindRequestOptions, Long id){
 
-        return this.orderRepository.findFilteredByUserId(orderFilterOptions, id);
+
+
+        String name = SecurityUtils.getSignedInUsersName();
+        User user = this.userRepository.findByUsername(name).orElseThrow(() ->new UsernameNotFoundException("User not found."));
+        if (!user.getRole().equals("ROLE_ADMIN") && user.getId().longValue()!=id.longValue()){
+
+            throw new AuthorizationException("Access denied");
+        }
+        if(orderFindRequestOptions!=null){
+            OrderFilterOptions orderFilterOptions = orderFindRequestOptions.getOrderFilterOptions();
+            Sort sort = orderFindRequestOptions.getSort();
+            Page<Order>page = orderFindRequestOptions.getPage();
+            return this.orderRepository.findFilteredByUserId(orderFilterOptions,sort,page, id);
+        }
+        return this.orderRepository.findFilteredByUserId(null,null,null, id);
+
+
+
+
+
+
     }
     public Order getOrderById(Long id){
        Order order =  this.orderRepository
@@ -133,10 +155,7 @@ public class OrderService {
 
    User ordersUser = order.getUser();
 
-        if(!SecurityUtils.checkIfUserIsSignedIn()){
-            throw new AuthorizationException("Access denied");
 
-        }
        String name = SecurityUtils.getSignedInUsersName();
        User user = this.userRepository.findByUsername(name).orElseThrow(() ->new UsernameNotFoundException("User not found."));
        if (!user.getRole().equals("ROLE_ADMIN")&& ordersUser!= null && user.getId().longValue()!=ordersUser.getId().longValue()){
@@ -149,10 +168,7 @@ public class OrderService {
     }
     public List<Order> getOrdersByUserId(Long id){
 
-        if(!SecurityUtils.checkIfUserIsSignedIn()){
-            throw new AuthorizationException("Access denied");
 
-        }
         String name = SecurityUtils.getSignedInUsersName();
         User user = this.userRepository.findByUsername(name).orElseThrow(() ->new UsernameNotFoundException("User not found."));
         if (!user.getRole().equals("ROLE_ADMIN")&& user.getId().longValue()!=id.longValue()){

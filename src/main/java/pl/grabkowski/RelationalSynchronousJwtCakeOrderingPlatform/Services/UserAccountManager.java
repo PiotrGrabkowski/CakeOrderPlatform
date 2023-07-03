@@ -174,6 +174,7 @@ public class UserAccountManager {
 
     public void update(UserDto userDto) {
         User user = this.getById(userDto.getId());
+        System.out.println("userdto: " + user.getNickname() + ", " + user.getPhoneNumber());
         if(!this.checkIfFieldEmpty(userDto.getNickname())){
 
             user.setNickname(userDto.getNickname());

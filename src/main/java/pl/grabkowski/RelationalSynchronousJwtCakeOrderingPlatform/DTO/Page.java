@@ -1,5 +1,7 @@
 package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO;
 
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.BadRequestException;
+
 import java.util.List;
 
 public class Page<T> {
@@ -23,7 +25,7 @@ public class Page<T> {
         this.currentPage = currentPage;
         this.itemsPerPage = itemsPerPage;
         this.totalNumberOfItems = totalNumberOfItems;
-        this.offset = (this.currentPage - 1) * this.itemsPerPage;
+
         if(this.itemsPerPage > 0){
             if(this.totalNumberOfItems%this.itemsPerPage == 0){
                 this.numberOfPages = this.totalNumberOfItems/this.itemsPerPage ;
@@ -32,6 +34,19 @@ public class Page<T> {
                 this.numberOfPages = this.totalNumberOfItems/this.itemsPerPage + 1;
             }
         }
+        else{
+            throw new BadRequestException("error.bad_request.items_per_page_lower_than_one");
+        }
+        if(this.currentPage>this.numberOfPages){
+            this.currentPage = this.numberOfPages;
+        }
+        if(this.currentPage>0){
+            this.offset = (this.currentPage - 1) * this.itemsPerPage;
+        }
+        else{
+            this.offset = 0;
+        }
+
     }
 
     public long getCurrentPage() {

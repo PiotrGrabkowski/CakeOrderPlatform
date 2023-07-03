@@ -44,6 +44,11 @@ public class TestController {
                 .getAuthorities().stream()
                 .map(ga -> ga.getAuthority()).collect(Collectors.toList());
 
+
+
+
+
+
     }
     @GetMapping("testi18n")
     public String testForI18n(){
@@ -55,7 +60,8 @@ public class TestController {
     @GetMapping("testOrders")
     public List<OrderResponse> findOrders(){
 
-        return this.orderRepository.findFiltered(null).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList());
+       // return this.orderRepository.findFiltered(null).stream().map(order-> new OrderResponse(order)).collect(Collectors.toList());
+        return null;
 
     }
 

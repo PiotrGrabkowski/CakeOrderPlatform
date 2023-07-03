@@ -29,13 +29,12 @@ public class ImageRepositoryCustomImpl implements ImageRepositoryCustom {
     public Page<Image> findAllByImageDestination(String imageDestination, Page<Image> page) {
         String countStatement = "SELECT COUNT(*) FROM image WHERE image_destination = '" + imageDestination + "'";
         long numberOfItems = ((BigInteger)this.entityManager.createNativeQuery(countStatement).getSingleResult()).longValue();
-        if(page.getCurrentPage()>numberOfItems){
-            throw new BadRequestException("error.bad_request.page_too_large");
-        }
+
         if(page.getCurrentPage()<1){
             throw new BadRequestException("error.bad_request.page_lower_than_one");
         }
         Page<Image> returnedPage = new Page<>(page.getCurrentPage(),page.getItemsPerPage(),numberOfItems);
+
 
 
         String whereClause = " WHERE image_destination = '" + imageDestination + "' LIMIT " + returnedPage.getItemsPerPage() + " OFFSET " + returnedPage.getOffset();

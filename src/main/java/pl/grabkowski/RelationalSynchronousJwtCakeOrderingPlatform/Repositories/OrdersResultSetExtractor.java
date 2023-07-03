@@ -15,7 +15,7 @@ public class OrdersResultSetExtractor implements ResultSetExtractor<List<Order>>
 
     @Override
     public List<Order> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Map<Long, Order> map = new HashMap<>();
+        Map<Long, Order> map = new LinkedHashMap<>(); /// LinkedHashMap - important to preserve order of the elements
         while(rs.next()){
 
             Order order = null;
