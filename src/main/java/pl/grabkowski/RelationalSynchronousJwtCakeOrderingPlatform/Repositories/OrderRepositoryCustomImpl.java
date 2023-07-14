@@ -119,8 +119,6 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom{
         if(page!=null){
             currentPage = page.getCurrentPage();
             itemsPerPage = page.getItemsPerPage();
-
-
         }
         if(currentPage<1){
             throw new BadRequestException("error.bad_request.page_lower_than_one");
@@ -129,24 +127,9 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom{
 
 
 
-
-
         sqlNamedParameters = this.addNativeSortingParams(sqlNamedParameters, sort);
         sqlNamedParameters = this.addPaging(sqlNamedParameters, returnedPage);
 
-
-
-        StringBuilder parametersToLog = new StringBuilder();
-        sqlNamedParameters.paramsValues.entrySet().forEach(entry-> {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if(value !=null){
-
-                parametersToLog.append(key + ": " + value.toString() + " ");
-            }
-
-
-        });
 
         String query = this.selectAllColumns +
                 this.from +
@@ -162,9 +145,9 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom{
            query = query + " ORDER BY " + sort.getParameter().getValue()+ " " + sort.getSortingDirection();
 
         }
-        logger.info("JDBCTemplate QUERY: " + query);
 
-        logger.info("JDBCTemplate QUERY PARAMETERS: " + parametersToLog.toString());
+        this.logQueryWithParameters(query, sqlNamedParameters);
+
 
         List<Order> list = jdbcTemplate.query(query, sqlNamedParameters.paramsValues, new OrdersResultSetExtractor());
 
@@ -180,6 +163,19 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom{
     /// private methods
     ////
 
+    private void logQueryWithParameters(String query, SQLNamedParameters sqlNamedParameters){
+        StringBuilder parametersToLog = new StringBuilder();
+        sqlNamedParameters.paramsValues.entrySet().forEach(entry-> {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if(value !=null){
+
+                parametersToLog.append(key + ": " + value.toString() + " ");
+            }
+        });
+        logger.info("JDBCTemplate QUERY: " + query);
+        logger.info("JDBCTemplate QUERY PARAMETERS: " + parametersToLog.toString());
+    }
     private long countItems(SQLNamedParameters sqlNamedParameters){
 
 
@@ -229,15 +225,12 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom{
 
     // doesn't change the state of provided sqlNamedParameters
     private SQLNamedParameters addPaging (SQLNamedParameters sqlNamedParameters, Page<Order> page){
-
-
         if(page != null && sqlNamedParameters!=null){
             SQLNamedParameters snp = new SQLNamedParameters();
             String paramsString = sqlNamedParameters.paramsString;
             Map<String, Object> paramsValues = new HashMap<>();
             for (Map.Entry<String, Object> entry : sqlNamedParameters.paramsValues.entrySet()){
                 paramsValues.put(entry.getKey(), entry.getValue());
-
             }
             paramsString = paramsString + " LIMIT :limit OFFSET :offset";
             paramsValues.put("limit", page.getItemsPerPage());
@@ -245,15 +238,8 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom{
             snp.paramsString = paramsString;
             snp.paramsValues = paramsValues;
             return snp;
-
         }
-
-
         return sqlNamedParameters;
-
-
-
-
     }
     // doesn't change the state of provided sqlNamedParameters
     private SQLNamedParameters addNativeSortingParams(SQLNamedParameters sqlNamedParameters, Sort sort){

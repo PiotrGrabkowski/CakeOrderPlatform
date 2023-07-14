@@ -8,6 +8,7 @@ public class UserDto {
     private String role;
     private String nickname;
     private String phoneNumber;
+    private String userEnabled;
 
     public UserDto() {
     }
@@ -20,8 +21,16 @@ public class UserDto {
             if(user.getPhoneNumber()!=null){
                 this.phoneNumber = user.getPhoneNumber().toString();
             }
+            if(user.isUserEnabled()){
+                this.userEnabled = "TRUE";
+            }
+            else {
+                this.userEnabled = "FALSE";
+            }
+
 
         }
+
 
     }
 
@@ -31,6 +40,21 @@ public class UserDto {
         this.role = role;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
+    }
+
+    public UserDto(Long id, String username, String role, String nickname, String phoneNumber, boolean userEnabled) {
+        this.id = id;
+        this.username = username;
+        this.role = role;
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        if(userEnabled){
+            this.userEnabled = "TRUE";
+        }
+        else{
+            this.userEnabled = "FALSE";
+        }
+
     }
 
     public Long getId() {
@@ -71,5 +95,16 @@ public class UserDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+    public String isUserEnabled() {
+        return userEnabled;
+    }
+
+    public String getUserEnabled() {
+        return userEnabled;
+    }
+
+    public void setUserEnabled(String userEnabled) {
+        this.userEnabled = userEnabled;
     }
 }

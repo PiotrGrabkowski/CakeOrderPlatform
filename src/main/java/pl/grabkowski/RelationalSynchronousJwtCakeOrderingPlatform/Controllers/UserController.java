@@ -13,6 +13,7 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Services.UserAccountManager;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +32,10 @@ public class UserController {
         this.jwtProvider = jwtProvider;
         this.userAccountManager = userAccountManager;
         this.clientProperties = clientProperties;
+    }
+    @PostMapping("/all")
+    public ResponseEntity<Page<UserDto>> getAllUsers(@RequestBody UserFindRequestOptions userFindRequestOptions){
+        return ResponseEntity.ok(this.userAccountManager.getAllUsers(userFindRequestOptions));
     }
 
     @PostMapping("/login")
@@ -98,17 +103,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(name = "id")Long id){
+    public ResponseEntity<UserDto> getUserById(@PathVariable(name = "id")Long id){
         User user = this.userAccountManager.getById(id);
-        user.setPassword("");
-        user.setUserToken(null);
-        user.setSetOfOrders(null);
-        return ResponseEntity.ok(user);
+        UserDto userDto = new UserDto(user);
+        return ResponseEntity.ok(userDto);
     }
     @PatchMapping()
     public ResponseEntity<String> updateUser(@RequestBody UserDto userDto){
 
         this.userAccountManager.update(userDto);
         return ResponseEntity.ok("Poprawnie zaktualizowano dane użytkownika");
+    }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> updateAccountStatus(@PathVariable(name = "id")Long id,
+                                                      @RequestParam(name = "active")boolean active){
+
+        this.userAccountManager.updateUserStatus(id, active);
+        return ResponseEntity.ok("Poprawnie zaktualizowano status użytkownika");
     }
 }

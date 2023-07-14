@@ -181,12 +181,16 @@ public class OrderService {
     @Transactional
     public void deleteOrderById(Long id){
         Order order = this.orderRepository.findById(id).orElseThrow(()-> new NoSuchElementInDatabaseException("Nie znaleziono zamówienia o podanym identyfikatorze."));
+        order.setUser(null);
         Image image = order.getImage();
         if(image !=null){
             this.imageService.delete(image.getId());
         }
 
         this.orderRepository.deleteById(id);
+
+    }
+    public void deleteImagesFromOrders(){
 
     }
     public void deleteAll(){

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.UserDto;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -30,10 +31,10 @@ public class User implements UserDetails {
     private String nickname;
     private Long phoneNumber;
     private boolean isUserEnabled;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
     private UserToken userToken;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private Set<Order> setOfOrders = new HashSet<>();
 
     public void addOrder(Order order){
@@ -48,6 +49,23 @@ public class User implements UserDetails {
     }
 
     public User() {
+    }
+    public User(UserDto userDto){
+        this.id = userToken.getId();
+        this.username = userDto.getUsername();
+        this.role = userDto.getRole();
+        this.nickname = userDto.getNickname();
+        if(userDto.getPhoneNumber()!=null){
+            this.phoneNumber = Long.parseLong(userDto.getPhoneNumber());
+        }
+        if(userDto.isUserEnabled().equalsIgnoreCase("TRUE")){
+            this.isUserEnabled = true;
+        }
+        else{
+            this.isUserEnabled = false;
+        }
+
+
     }
 
     public User(Long id, String username, String password, String role, String nickname, Long phoneNumber, boolean isUserEnabled, UserToken userToken, Set<Order> setOfOrders) {

@@ -6,12 +6,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.ClientSideConfigurationProperties;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Configuration.UriConfig;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.LoginRequest;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.PasswordChangeDTO;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.RegisterRequest;
-import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.UserDto;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.DTO.*;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.AuthorizationException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.ExternalServiceException;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Exceptions.NoSuchElementInDatabaseException;
@@ -20,14 +19,17 @@ import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTProvide
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.JWT.JWTTransferingObject;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.User;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Model.UserToken;
+import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.OrderRepository;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.UserRepository;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Repositories.UserTokenRepository;
 import pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.Security.SecurityUtils;
 
 import javax.mail.MessagingException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserAccountManager {
@@ -39,10 +41,12 @@ public class UserAccountManager {
     private final PasswordEncoder passwordEncoder;
     private final UriConfig uriConfig;
     private final AuthenticationManager authenticationManager;
+    private final OrderRepository orderRepository;
+    private final TemplateEngine templateEngine;
 
 
 
-    public UserAccountManager(JWTProvider jwtProvider, UserTokenRepository userTokenRepository, MailService mailService, UserRepository userRepository, ClientSideConfigurationProperties clientSideConfigurationProperties, PasswordEncoder passwordEncoder, UriConfig uriConfig, AuthenticationManager authenticationManager) {
+    public UserAccountManager(JWTProvider jwtProvider, UserTokenRepository userTokenRepository, MailService mailService, UserRepository userRepository, ClientSideConfigurationProperties clientSideConfigurationProperties, PasswordEncoder passwordEncoder, UriConfig uriConfig, AuthenticationManager authenticationManager, OrderRepository orderRepository, TemplateEngine templateEngine) {
         this.jwtProvider = jwtProvider;
         this.userTokenRepository = userTokenRepository;
         this.mailService = mailService;
@@ -51,6 +55,33 @@ public class UserAccountManager {
         this.passwordEncoder = passwordEncoder;
         this.uriConfig = uriConfig;
         this.authenticationManager = authenticationManager;
+        this.orderRepository = orderRepository;
+        this.templateEngine = templateEngine;
+    }
+    public Page<UserDto> getAllUsers(UserFindRequestOptions userFindRequestOptions){
+        if(userFindRequestOptions!=null){
+            Page<User> page = this.userRepository.findAll(userFindRequestOptions.getUser(),userFindRequestOptions.getPage());
+            return this.convertPageOfUsersToPageOfUserDtos(page);
+        }
+        else{
+            Page<User> page = this.userRepository.findAll((UserDto) null,null);
+            return this.convertPageOfUsersToPageOfUserDtos(page);
+
+        }
+
+
+    }
+    private Page<UserDto> convertPageOfUsersToPageOfUserDtos(Page<User>page){
+        List<UserDto> list = page.getListOfItems().stream().map(user-> new UserDto(user)).collect(Collectors.toList());
+        Page<UserDto> returnedPage = new Page<>();
+        returnedPage.setCurrentPage(page.getCurrentPage());
+        returnedPage.setNumberOfPages(page.getNumberOfPages());
+        returnedPage.setItemsPerPage(page.getItemsPerPage());
+        returnedPage.setOffset(page.getOffset());
+        returnedPage.setTotalNumberOfItems(page.getTotalNumberOfItems());
+        returnedPage.setListOfItems(list);
+        return returnedPage;
+
     }
 
     public JWTTransferingObject login (LoginRequest loginRequest, Locale locale){
@@ -84,7 +115,11 @@ public class UserAccountManager {
         String confirmationEndpoint = clientSideConfigurationProperties.getUrl() +clientSideConfigurationProperties.getRegistrationConfirmationEndpoint() + userToken.getValue();
         String from = "PINKSAGITARIUS@alwaysdata.net";
         String subject = "Prośba o potwierdzenie rejestracji na platformie do zamawiania tortów PINK SAGITARIUS";
-        String content = "Klinkij w podany link w celu potiwerdzenia rejestracji:  " + "<a href=\"" +confirmationEndpoint +"\">Kliknij aby potwierdzic</a>";
+        Context context = new Context();
+        context.setVariable("nickname", user.getNickname());
+        context.setVariable("confirmationEndpoint", confirmationEndpoint);
+        String content = templateEngine.process("template",context);
+        // String content = "Kliknij w podany link w celu potiwerdzenia rejestracji:  " + "<a href=\"" +confirmationEndpoint +"\">Kliknij aby potwierdzic</a>";
         mailService.sendMail(user.getUsername(), from, subject, content, true);
 
 
@@ -104,7 +139,15 @@ public class UserAccountManager {
     public void deleteUserById (Long id){
         User user = userRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementInDatabaseException("Nie znaleziono użytkownika o podanym identyfikatorze."));
-        userRepository.delete(user);
+        user.getSetOfOrders().stream().forEach(order-> {
+            if(order!=null){
+                order.setUser(null);
+                this.orderRepository.save(order);
+
+            }
+        });
+        this.userRepository.delete(user);
+
 
     }
 
@@ -209,5 +252,11 @@ public class UserAccountManager {
 
         }
         return false;
+    }
+
+    public void updateUserStatus(Long id, boolean active) {
+        User user = this.userRepository.findById(id).orElseThrow(()->new NoSuchElementInDatabaseException("Nie znaleziono użytkownika o podanym numerze id"));
+        user.setUserEnabled(active);
+        this.userRepository.save(user);
     }
 }
