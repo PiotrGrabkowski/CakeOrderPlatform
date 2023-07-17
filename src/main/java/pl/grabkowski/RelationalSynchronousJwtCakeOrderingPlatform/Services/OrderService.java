@@ -89,7 +89,7 @@ public class OrderService {
         newOrder.setOrderStatus(OrderStatus.NEW);
 
        Order savedOrder = this.orderRepository.save(newOrder);
-   /*      if(authenticated) {
+        if(authenticated) {
             String msg = "Użytkownik: " + user.getNickname() +
                     " o numerze telefonu: " +
                     user.getPhoneNumber() +
@@ -99,7 +99,7 @@ public class OrderService {
         else {
 
             this.smsService.send();
-        }*/
+        }
 
         return savedOrder;
 

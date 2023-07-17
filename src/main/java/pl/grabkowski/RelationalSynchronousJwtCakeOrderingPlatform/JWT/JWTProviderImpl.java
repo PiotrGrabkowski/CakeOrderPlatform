@@ -50,6 +50,7 @@ public class JWTProviderImpl implements JWTProvider{
         String msg = this.messageSource.getMessage("user.login", new Object[]{}, locale);
 
 
+
         String jwt = Jwts.builder()
                 .setSubject(authenticate.getName())
                 .setIssuedAt(new Date(now))

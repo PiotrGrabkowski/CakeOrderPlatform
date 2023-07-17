@@ -3,11 +3,7 @@ package pl.grabkowski.RelationalSynchronousJwtCakeOrderingPlatform.SMS;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.Map;
 
 @Service
@@ -22,7 +18,7 @@ public class SmsPlanetService implements SmsService{
         this.smsPlanetConfigurationProperties = smsPlanetConfigurationProperties;
     }
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+
     public void send(){
         this.send(
                 this.smsPlanetConfigurationProperties.getMsg()
@@ -32,20 +28,15 @@ public class SmsPlanetService implements SmsService{
 
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void send(String msg)  {
-
         this.send(
                 this.smsPlanetConfigurationProperties.getFrom(),
                 this.smsPlanetConfigurationProperties.getTo(),
                 msg
         );
-
-
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void send(String from, String to, String msg) {
         this.createSendCall(
                 this.smsPlanetConfigurationProperties.getUri(),
@@ -55,8 +46,13 @@ public class SmsPlanetService implements SmsService{
                 this.smsPlanetConfigurationProperties.getApiKey(),
                 this.smsPlanetConfigurationProperties.getApiPassword()
         );
-
     }
+
+
+
+
+
+
 
     private void createSendCall(String uri,
                                 String from,
@@ -64,15 +60,14 @@ public class SmsPlanetService implements SmsService{
                                 String msg,
                                 String key,
                                 String password){
+        String URI = uri + "?" +
+                "from=" + from +
+                "&to=" + to +
+                "&msg=" + msg +
+                "&key="+ key +
+                "&password=" + password;
 
-      String URI = UriComponentsBuilder.fromUriString(uri)
-              .queryParam("key", key)
-              .queryParam("password", password)
-              .queryParam("from", from)
-              .queryParam("msg", msg)
-              .queryParam("to", to)
-              .encode()
-              .toUriString();
+
         String response = this.restTemplate.getForObject(URI, String.class);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> map = null;
